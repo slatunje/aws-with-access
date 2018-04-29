@@ -27,7 +27,7 @@ var (
 )
 
 var (
-	args []string // os.Args[0] is _this_ program's name
+	args []string
 	cmd  *exec.Cmd
 )
 

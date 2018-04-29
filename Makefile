@@ -6,4 +6,4 @@ deps:
 	direnv allow
 
 build:
-	go build -o bin/awsi main.go
+	go build -o bin/with main.go

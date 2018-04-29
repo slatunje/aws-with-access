@@ -61,6 +61,12 @@
   version = "v1.1.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/slatunje/aws-role"
+  packages = ["cmd","pkg/cue","pkg/utils"]
+  revision = "798f26c93bc4cd147afcd93aa441163f4bf9c0ca"
+
+[[projects]]
   name = "github.com/spf13/afero"
   packages = [".","mem"]
   revision = "63644898a8da0bc22138abf860edaf5277b6102e"
@@ -117,6 +123,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ec3574f1616853903770d4cca650ace1fe22569a2f20a0f9296c7a8b534e2106"
+  inputs-digest = "c0a401483452f1d689438de459ac3aaea281ccd4e90e260ad777f2f75db79449"
   solver-name = "gps-cdcl"
   solver-version = 1

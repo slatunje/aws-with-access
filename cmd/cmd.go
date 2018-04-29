@@ -12,7 +12,7 @@ import (
 	"github.com/slatunje/aws-role/pkg/cue"
 )
 
-var app = "awsi"
+var app = "with"
 
 var cfgFile string
 
