@@ -28,7 +28,6 @@ export AWS_PROFILE=default
 export AWS_SHARED_CREDENTIALS_FILE=~/.aws/credentials
 export AWS_CONFIG_FILE=~/.aws/config
 ```
-
 Default `with` will always use the above environment values as default values.
 
 ### with default credentials...
