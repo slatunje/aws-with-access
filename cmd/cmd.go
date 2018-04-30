@@ -7,12 +7,12 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"github.com/mitchellh/go-homedir"
-	"github.com/slatunje/aws-role/pkg/cue"
+	"github.com/slatunje/aws-with-access/pkg/cue"
+	"github.com/slatunje/aws-with-access/pkg/env"
+	"github.com/slatunje/aws-with-access/pkg/utils"
 )
 
-var app = "with"
+const app = "with"
 
 var cfgFile string
 
@@ -22,12 +22,26 @@ var rootCmd = &cobra.Command{
 	Short: fmt.Sprintf("=> %s makes it easy to obtain temporary AWS credentials", app),
 	Long: fmt.Sprintf(`
 Description:
-  %s makes it easy to obtain temporary AWS credentials whenever you are required to access an AWS 
-  account through 'AssumeRole'.
+  %s makes it easier to obtain temporary AWS credentials through 'AssumeRole'.
 `, app),
 	Run: func(cmd *cobra.Command, args []string) {
 		cue.Credentials()
 	},
+}
+
+// init is called in alphabetic order within this package
+func init() {
+	os.Setenv("TZ", "")
+	cobra.OnInitialize(initConfig)
+	rootCmd.PersistentFlags().
+		StringVar(&cfgFile, "config", "", "config file (default is $HOME/.with/config.toml)")
+}
+
+// initConfig reads in config file and ENV variables if set.
+func initConfig() {
+	env.DefaultEnv()
+	env.DefaultConfigFile(app)
+	env.DefaultConfigReady()
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -35,36 +49,6 @@ Description:
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
-		os.Exit(1)
-	}
-}
-
-func init() {
-	os.Setenv("TZ", "")
-	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().
-		StringVar(&cfgFile, "config", "", fmt.Sprintf("config file (default is $HOME/.%s.yaml)", app))
-}
-
-// initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	switch true {
-	case cfgFile != "":
-		viper.SetConfigFile(cfgFile)
-		break
-	default:
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		viper.AddConfigPath(home)
-		viper.SetConfigName(fmt.Sprintf(".%s", app)) // $HOME is default ".awsrole" (without extension).
-	}
-
-	viper.AutomaticEnv()
-
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		os.Exit(utils.ExitExecute)
 	}
 }
