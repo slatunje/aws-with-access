@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/viper"
 	"fmt"
 	"github.com/slatunje/aws-with-access/pkg/utils"
-	"sort"
 	"time"
 	"os"
 )
@@ -37,6 +36,12 @@ const (
 	RoleProfile           = "aws_iam_role_profile"
 )
 
+// default values
+const (
+	DefaultProfile = "default"
+)
+
+// default values
 const (
 	DefaultConfigFilename   = "config"   // default name of the configuration file
 	DefaultConfigFileType   = "toml"     // default configuration file extension
@@ -44,9 +49,11 @@ const (
 	DefaultProjectDir       = "../.."    // default path to project directory
 )
 
-var requiredKeys = []string{AccessKeyID, AccessSecretKey}
+var requiredKeys []string
+//var requiredKeys = []string{AccessKeyID, AccessSecretKey}
 
 func DefaultEnv() {
+	viper.AutomaticEnv()
 	viper.SetDefault(AccessKeyID, "")
 	viper.SetDefault(AccessSecretKey, "")
 	viper.SetDefault(SessionToken, nil)
@@ -54,11 +61,12 @@ func DefaultEnv() {
 	viper.SetDefault(Region, "eu-west-1")
 	viper.SetDefault(Output, "json")
 	viper.SetDefault(CaBundle, nil)
-	viper.SetDefault(Profile, "default")
+	viper.SetDefault(Profile, DefaultProfile)
 	viper.SetDefault(SharedCredentialsFile, "~/.aws/credentials")
 	viper.SetDefault(ConfigFile, "~/.aws/config")
 }
 
+// DefaultConfigFile
 func DefaultConfigFile(configFile string) {
 	viper.SetConfigName(DefaultConfigFilename)
 	viper.SetConfigType(DefaultConfigFileType)
@@ -77,26 +85,28 @@ func DefaultConfigFile(configFile string) {
 	log.Printf("[info] using configuration from path: %s", viper.ConfigFileUsed())
 }
 
+// DefaultConfigReady
 func DefaultConfigReady() {
-	viper.AutomaticEnv()
-	viperShowDefaultSettings()
+	ensureDefaultSettings()
+	if missingRequiredKeys() {
+		os.Exit(utils.ExitRequireKeys)
+	}
 }
 
-func viperShowDefaultSettings() {
-	keys := viper.AllKeys()
-	sort.Strings(keys)
-	var required []string
-	for _, k := range keys {
-		if k == SessionToken || k == CaBundle {
-			continue
-		}
+// missingRequiredKeys
+func missingRequiredKeys() bool {
+	var missing []string
+	for _, k := range requiredKeys {
 		if v := viper.GetString(k); len(v) == 0 {
-			required = append(required, k)
+			missing = append(missing, k)
 		}
 	}
-	if len(required) != 0 {
-		logMsg := "[error] required keys %s are missing from all known configs."
-		log.Printf(logMsg, utils.ToUpper(required))
-		os.Exit(utils.ExitShowDefaultSettings)
+	if len(missing) != 0 {
+		log.Printf("missing required keys %s.", utils.ToUpper(missing))
+		return true
 	}
+	return false
 }
+
+// ensureDefaultSettings
+func ensureDefaultSettings() {}

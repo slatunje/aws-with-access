@@ -34,3 +34,32 @@ Default `with` will always use the above environment values as default values.
 
 Default `with` expects to find the default path `~/.aws/credentials`
 
+##  Usage Direct
+
+    with aws s3 ls 
+
+    with aws s3 mb s3://vit-prod-lambda
+    
+    with aws s3 ls s3://vit-prod-lambda
+    
+##  Usage Session
+
+- [visit awssudo](https://github.com/JSainsburyPLC/awssudo#usage)
+
+    with \
+    --interactive \
+    --profile vit-prod 
+   
+    aws s3 ls
+    
+    terraform
+    
+    with \ 
+    --interactive \
+    --profile vit-dev \
+    --switch 
+    
+    aws s3 ls
+    
+    exit
+    

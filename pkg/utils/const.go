@@ -4,7 +4,8 @@ package utils
 const (
 	_                                                 = iota
 	ExitExecute
-	ExitShowDefaultSettings
+	ExitRequireKeys
 	ExitCredentialsFailure
 	ExitCommandlineFailure
+	ExitOnDebug
 )
