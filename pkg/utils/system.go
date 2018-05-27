@@ -1,9 +1,14 @@
+// Copyright © 2018 Sylvester La-Tunje. All rights reserved.
+
 package utils
 
 import (
 	"runtime"
 	"os"
 	"path/filepath"
+	"os/exec"
+	"errors"
+	"fmt"
 )
 
 const (
@@ -15,9 +20,21 @@ func HomeDir() string {
 	if runtime.GOOS == "windows" { // Windows
 		return os.Getenv("USERPROFILE")
 	}
+	return os.Getenv("HOME") // *nix
+}
 
-	// *nix
-	return os.Getenv("HOME")
+// LoginPath returns the login path
+func LoginPath() string {
+	if runtime.GOOS == "windows" {
+		path, err := exec.LookPath("/usr/bin/login")
+		if err != nil {
+			link := "https://docs.microsoft.com/en-us/windows/wsl/install-win10#install-the-windows-subsystem-for-linux"
+			panic(errors.New(fmt.Sprintf("%s. visit %s to fix this problem ", err, link)))
+		}
+
+		return path // Windows
+	}
+	return "/usr/bin/login" // *nix
 }
 
 // ProjectDir returns the path to project directory
@@ -29,6 +46,7 @@ func ProjectDir(dir string) string {
 func ProjectConfigDir(dir string) string {
 	return GetPathFromFilename(dir)
 }
+
 // ProjectConfigDir returns the path to project config directory
 func ProjectDefaultConfigDir(app string) (dir string) {
 	dir = filepath.Join(HomeDir(), app)
@@ -39,7 +57,7 @@ func ProjectDefaultConfigDir(app string) (dir string) {
 // GetPathToFilename returns the current executed path
 func GetPathToFilename() (string) {
 	_, filename, _, _ := runtime.Caller(1)
-	return  filename
+	return filename
 }
 
 // GetPathFromFilename returns the full path from filename `string`

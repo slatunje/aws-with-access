@@ -57,7 +57,6 @@ Default `with` expects to find the default path `~/.aws/credentials`
     with \ 
     --interactive \
     --profile vit-dev \
-    --switch 
     
     aws s3 ls
     

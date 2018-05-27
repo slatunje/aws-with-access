@@ -1,20 +1,26 @@
-// Copyright © 2018 Sylvester La-Tunje
+// Copyright © 2018 Sylvester La-Tunje. All rights reserved.
 
 package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/slatunje/aws-with-access/pkg/cue"
-	"github.com/slatunje/aws-with-access/pkg/env"
 	"github.com/slatunje/aws-with-access/pkg/utils"
+	"github.com/slatunje/aws-with-access/pkg/env"
 )
 
-const app = "with"
+const (
+	app = "with"
+)
 
-var cfgFile string
+var (
+	profile     string
+	interactive bool
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -25,7 +31,7 @@ Description:
   %s makes it easier to obtain temporary AWS credentials through 'AssumeRole'.
 `, app),
 	Run: func(cmd *cobra.Command, args []string) {
-		cue.Credentials()
+		cue.Credentials(args)
 	},
 }
 
@@ -34,13 +40,15 @@ func init() {
 	os.Setenv("TZ", "")
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().
-		StringVar(&cfgFile, "config", "", "config file (default is $HOME/.with/config.toml)")
+		StringVarP(&profile,"profile",  "p","default", "set profile name.")
+	rootCmd.PersistentFlags().
+		BoolVarP(&interactive,"interactive", "i", false, "enter into interactive mode.")
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	env.DefaultEnv()
-	env.DefaultConfigFile(app)
+	env.DefaultProfile(profile, interactive)
 	env.DefaultConfigReady()
 }
 
@@ -48,7 +56,7 @@ func initConfig() {
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		os.Exit(utils.ExitExecute)
 	}
 }

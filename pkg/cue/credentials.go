@@ -1,3 +1,5 @@
+// Copyright © 2018 Sylvester La-Tunje. All rights reserved.
+
 package cue
 
 import (
@@ -6,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -15,57 +18,46 @@ import (
 	"github.com/slatunje/aws-with-access/pkg/env"
 	"github.com/aws/aws-sdk-go-v2/aws/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
-	"github.com/davecgh/go-spew/spew"
-)
-
-var (
-	DefaultRoleARN         string
-	DefaultDuration        = 15 * time.Minute
-	DefaultRoleSession     = viper.GetString(env.RoleSession)
-	DefaultRoleProfile     = viper.GetString(env.RoleProfile)
-	DefaultRoleSessionName = fmt.Sprintf("%s%d", DefaultRoleSession, time.Now().UTC().UnixNano())
-)
-
-var (
-	args []string
-	cmd  *exec.Cmd
+	"github.com/slatunje/aws-with-access/pkg/term"
 )
 
 // Credentials loads the required credentials
-func Credentials() {
+func Credentials(args []string) {
 
-	//spew.Dump(viper.AllSettings())
-	//os.Exit(utils.ExitOnDebug)
+	if !viper.GetBool(env.Interactive) {
+		WriteEnvironment(cfgByProfile())
+		ExecuteCommand(args)
+		return
+	}
 
+	var t = term.NewTerminal()
 
+	WriteEnvironment(cfgByProfile())
+	ExecuteCommand(args)
 
-	// spew.Dump(viper.AllSettings())
+	var p = term.NewProcess(t)
 
-	// store
-
-	cfgWriteEnvironment(cfg())
-
-	// spew.Dump(viper.AllSettings())
-
-	// execute
-
-	cfgExecuteCommand()
+	p.Start()
+	p.Wait()
 
 }
 
-func cfgWriteEnvironment(cfg aws.Config) {
+// WriteEnvironment
+func WriteEnvironment(cfg aws.Config) {
 	c, err := cfg.Credentials.Retrieve()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[error] failed find credentials, %v", err)
-		os.Exit(1)
+		os.Exit(utils.ExitCredentialsFailure)
 	}
 	os.Setenv("AWS_ACCESS_KEY_ID", c.AccessKeyID)
 	os.Setenv("AWS_SECRET_ACCESS_KEY", c.SecretAccessKey)
 	os.Setenv("AWS_SESSION_TOKEN", c.SessionToken)
+	os.Setenv("AWS_PROFILE", viper.GetString(env.Profile))
 }
 
-func cfgExecuteCommand() {
-	args = os.Args[1:]
+// ExecuteCommand
+func ExecuteCommand(args []string) {
+	var cmd *exec.Cmd
 	if len(args) < 1 {
 		return
 	}
@@ -80,102 +72,43 @@ func cfgExecuteCommand() {
 	}
 }
 
-// cfg is responsible for returning the correct `aws.Config`
-func cfg() (cfg aws.Config) {
-
-	// TODO: must have profile here
-
-	DefaultRoleProfile = "vit-prod"
-	fmt.Println("PROFILE", DefaultRoleProfile,)
-
-
-	sharecfg, err := external.NewSharedConfig(DefaultRoleProfile, []string{
-		file("config"), file("credentials"),
-	})
+// cfgByProfile is responsible for returning the correct `aws.Config`
+// first it establishes which credentials to load, then it loads the
+// actual credentials. finally, if profile is assumed role scenario,
+// then switch role by setting a session.
+func cfgByProfile() (cfg aws.Config) {
+	var role = viper.GetString(env.Profile)
+	share, err := external.NewSharedConfig(role, files())
 	if err != nil {
-		log.Println("\n\n\nSHARE CONFIG LOAD ERROR ===========", err.Error())
-		os.Exit(-200)
+		log.Printf("[error] cannot load configuration due to, %v", err.Error())
+		os.Exit(utils.ExitShareConfigFailure)
 	}
-
-
-
-
-
-	//os.Exit(utils.ExitOnDebug)
-
-	// TODO: use this instead ... LoadSharedConfig
-	
-	cfg, err = external.LoadDefaultAWSConfig(
-		external.WithRegion(viper.GetString(env.Region)),
-		external.WithSharedConfigFiles([]string{file("credentials")}),
-		external.WithSharedConfigProfile(sharecfg.AssumeRole.Source.Profile),
-	)
+	cfg, err = external.LoadDefaultAWSConfig(share)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[error] cannot load configuration due to, %v", err)
 		os.Exit(utils.ExitCredentialsFailure)
 	}
-	cm := fmt.Sprintf("[info] using aws profile: '%v' ", profile())
-	if profile() != env.DefaultProfile {
-
-		spew.Dump(cfg.Credentials)
-		
-		//sharecfg, err := external.NewSharedConfig(DefaultRoleProfile, []string{
-		//		file("config"), file("credentials"),
-		//})
-		//if err != nil {
-		//	log.Println("\n\n\nSHARE CONFIG LOAD ERROR ===========", err.Error())
-		//	os.Exit(-200)
-		//}
-
-		spew.Dump(sharecfg.AssumeRole)
-		spew.Dump(sharecfg.Credentials)
-		spew.Dump(sharecfg.Region)
-		spew.Dump(sharecfg.Profile)
-
-		fmt.Println("===DONE===")
-
-		//os.Exit(utils.ExitOnDebug)
-
-
-		cfg.Credentials = credentialWithShare(cfg, sharecfg)
-		//cfg.Credentials = credentials(cfg)
-		cm += fmt.Sprintf("but will override using '%v' for this current session.", role())
+	if !reflect.DeepEqual(share.AssumeRole, external.AssumeRoleConfig{}) {
+		cfg.Credentials = credentials(cfg, share)
 	}
-	log.Println(cm)
+	log.Printf("[info] using aws profile: '%v' ", share.Profile)
 	return
 }
 
-// profile will resolve and return the correct profile
-func profile() string {
-	return DefaultRoleProfile
-  	//return viper.GetString(env.Profile)
-}
-
-//// credentials returns a `aws.CredentialsProvider`
-//func credentials(cfg aws.Config) aws.CredentialsProvider {
-//	DefaultRoleARN = fmt.Sprintf("arn:aws:iam::%s:role/%s", account(), role())
-//	c := stscreds.NewAssumeRoleProvider(sts.New(cfg), DefaultRoleARN)
-//	c.Duration = DefaultDuration
-//	c.RoleSessionName = DefaultRoleSessionName
-//	return c
-//}
-
 // credentials returns a `aws.CredentialsProvider`
-func credentialWithShare(cfg aws.Config, sharecfg external.SharedConfig) aws.CredentialsProvider {
-	c := stscreds.NewAssumeRoleProvider(sts.New(cfg), sharecfg.AssumeRole.RoleARN)
-	c.Duration = DefaultDuration
-	c.RoleSessionName = DefaultRoleSessionName
+func credentials(cfg aws.Config, share external.SharedConfig) aws.CredentialsProvider {
+	c := stscreds.NewAssumeRoleProvider(sts.New(cfg), share.AssumeRole.RoleARN)
+	c.Duration = 15 * time.Minute
+	c.RoleSessionName = fmt.Sprintf("%s%d", viper.GetString(env.RoleSession), time.Now().UTC().UnixNano())
 	return c
 }
 
-func role() string {
-	return "TODO"
-	//return "js_roles_js-aap-vit-prod_admin" // return viper.GetString(env.Role) // TODO: resolve
+// files return `[]string` of paths to search for files
+func files() []string {
+	return []string{file("config"), file("credentials"),}
 }
 
-//func account() string {
-//	return "883300774050" // return viper.GetString(env.Account) // TODO: resolve
-//}
+// file sets the full path to a file
 func file(filename string) string {
 	return filepath.Join(utils.HomeDir(), ".aws", filename)
 }

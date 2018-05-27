@@ -1,3 +1,5 @@
+// Copyright © 2018 Sylvester La-Tunje. All rights reserved.
+
 package utils
 
 // ExitXXX represents various exit code within the system
@@ -7,5 +9,7 @@ const (
 	ExitRequireKeys
 	ExitCredentialsFailure
 	ExitCommandlineFailure
+	ExitShareConfigFailure
+	ExitBase64DecodeFailure
 	ExitOnDebug
 )
