@@ -62,3 +62,9 @@ Default `with` expects to find the default path `~/.aws/credentials`
     
     exit
     
+-   Shorts
+
+    with -ip vit-prod aws s3 ls 
+       
+    with -i -p vit-prod aws s3 ls
+     
