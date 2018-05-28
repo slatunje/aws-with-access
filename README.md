@@ -68,3 +68,15 @@ Default `with` expects to find the default path `~/.aws/credentials`
        
     with -i -p vit-prod aws s3 ls
      
+##  NOTES: Interactive
+
+- interactive mode starts a new process, so if you have the following set as default in your bash, it will override the newly acquire Environment AWS_*:
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    
+## TODO:
+
+- Figure out an easy way to set environment variables is child process straight after login
+
+
+ 

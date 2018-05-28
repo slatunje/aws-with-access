@@ -23,14 +23,17 @@ func TestOnInitiation(t *testing.T) {
 		{
 			"Default: No Environment set",
 			map[string]interface{}{
-				"aws_profile": "AKIA",
-				"aws_iam_role_name": "A-I-R-N",
+				"aws_profile":                    "PROFILE",
+				"aws_iam_role_name":              "WITH.",
+				"aws_shell_interactive":          false,
+				"aws_access_key_id_previous":     "",
+				"aws_secret_access_key_previous": "",
 			},
 		},
 	}
 	for i, tc := range c {
 		t.Run(fmt.Sprintf("#%d %s", i, tc.name), func(t *testing.T) {
-			 a.Equal(viper.AllSettings(), tc.expect)
+			a.Equal(viper.AllSettings(), tc.expect)
 		})
 	}
 }
@@ -49,6 +52,6 @@ func setupMain() {
 
 func initConfig() {
 	DefaultEnv()
-	DefaultProfile("AKIA")
+	DefaultProfile("PROFILE", false)
 	DefaultConfigReady()
 }

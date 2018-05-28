@@ -46,11 +46,13 @@ type Process struct {
 
 // NewProcess will transfer stdin, stdout, and stderr to a new
 // process. It will also set the current working directory for
-// the shell to start in.
+// the shell to start in. Empty Env `[]string`, will cause it
+// to call `os.Environ()`
 func NewProcess(t *Terminal) *Process {
-	pa := os.ProcAttr{
+	var pa = os.ProcAttr{
 		Files: []*os.File{os.Stdin, os.Stdout, os.Stderr},
 		Dir:   t.CWD,
+		Env:   nil,
 	}
 	return &Process{Attr: &pa, Tern: t}
 }

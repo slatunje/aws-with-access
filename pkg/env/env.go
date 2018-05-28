@@ -12,18 +12,20 @@ import (
 
 // https://docs.aws.amazon.com/cli/latest/userguide/cli-environment.html
 const (
-	AccessKeyID           = "aws_access_key_id"
-	AccessSecretKey       = "aws_secret_access_key"
-	SessionToken          = "aws_session_token"
-	SessionDuration       = "aws_session_duration"
-	Region                = "aws_default_region"
-	Output                = "aws_default_output"
-	CaBundle              = "aws_ca_bundle"
-	SharedCredentialsFile = "aws_shared_credentials_file"
-	ConfigFile            = "aws_config_file"
-	Profile               = "aws_profile"
-	RoleSession           = "aws_iam_role_name"
-	Interactive  		  = "aws_shell_interactive"
+	AccessKeyID             = "aws_access_key_id"
+	AccessSecretKey         = "aws_secret_access_key"
+	SessionToken            = "aws_session_token"
+	SessionDuration         = "aws_session_duration"
+	Region                  = "aws_default_region"
+	Output                  = "aws_default_output"
+	CaBundle                = "aws_ca_bundle"
+	SharedCredentialsFile   = "aws_shared_credentials_file"
+	ConfigFile              = "aws_config_file"
+	Profile                 = "aws_profile"
+	RoleSession             = "aws_iam_role_name"
+	Interactive             = "aws_shell_interactive"
+	PreviousAccessKeyID     = "aws_access_key_id_previous"
+	PreviousAccessSecretKey = "aws_secret_access_key_previous"
 )
 
 // requiredKeys defines required keys
@@ -41,7 +43,7 @@ func DefaultEnv() {
 	//viper.SetDefault(CaBundle, nil)
 	//viper.SetDefault(SharedCredentialsFile, "~/.aws/credentials")
 	//viper.SetDefault(ConfigFile, "~/.aws/config")
-	viper.SetDefault(RoleSession, "A-I-R-N")
+	viper.SetDefault(RoleSession, "WITH.")
 }
 
 // DefaultConfigFile
@@ -52,6 +54,7 @@ func DefaultProfile(profile string, interactive bool) {
 
 // DefaultConfigReady
 func DefaultConfigReady() {
+	storePreviousKeys()
 	if missingRequiredKeys() {
 		os.Exit(utils.ExitRequireKeys)
 	}
@@ -70,4 +73,10 @@ func missingRequiredKeys() bool {
 		return true
 	}
 	return false
+}
+
+// storePreviousKeys
+func storePreviousKeys() {
+	viper.Set(PreviousAccessKeyID, viper.GetString(AccessKeyID))
+	viper.Set(PreviousAccessSecretKey, viper.GetString(AccessSecretKey))
 }

@@ -52,8 +52,8 @@ func WriteEnvironment(cfg aws.Config) {
 	os.Setenv("AWS_ACCESS_KEY_ID", c.AccessKeyID)
 	os.Setenv("AWS_SECRET_ACCESS_KEY", c.SecretAccessKey)
 	os.Setenv("AWS_SESSION_TOKEN", c.SessionToken)
-	os.Setenv("AWS_SECURITY_TOKEN", c.SessionToken)  // TODO: not sure if this is still required...test this
-	os.Setenv("AWS_PROFILE", viper.GetString(env.Profile))
+	os.Setenv("AWS_SECURITY_TOKEN", c.SessionToken)
+	os.Setenv("AWS_DEFAULT_PROFILE", viper.GetString(env.Profile))
 }
 
 // ExecuteCommand
