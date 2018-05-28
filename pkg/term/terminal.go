@@ -70,6 +70,8 @@ func (p *Process) Start() {
 	p.Proc = proc
 }
 
+// Wait waits for the Process to exit, and then returns a
+// ProcessState describing its status and an error, if any.
 func (p *Process) Wait() {
 	if p.Proc == nil {
 		return
