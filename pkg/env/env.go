@@ -4,10 +4,10 @@ package env
 
 import (
 	"log"
-
-	"github.com/spf13/viper"
-	"github.com/slatunje/aws-with-access/pkg/utils"
 	"os"
+
+	"github.com/slatunje/aws-with-access/pkg/utils"
+	"github.com/spf13/viper"
 )
 
 // https://docs.aws.amazon.com/cli/latest/userguide/cli-environment.html
@@ -24,12 +24,20 @@ const (
 	Profile                 = "aws_profile"
 	RoleSession             = "aws_iam_role_name"
 	Interactive             = "aws_shell_interactive"
+	QuietMode               = "aws_shell_quiet"
 	PreviousAccessKeyID     = "aws_access_key_id_previous"
 	PreviousAccessSecretKey = "aws_secret_access_key_previous"
 )
 
 // requiredKeys defines required keys
 var requiredKeys = []string{Profile}
+
+// ConfigOptions
+type ConfigOptions struct {
+	Profile     string
+	Interactive bool
+	QuietMode   bool
+}
 
 // DefaultEnv
 func DefaultEnv() {
@@ -47,9 +55,11 @@ func DefaultEnv() {
 }
 
 // DefaultConfigFile
-func DefaultProfile(profile string, interactive bool) {
-	viper.Set(Profile, profile)
-	viper.Set(Interactive, interactive)
+//func DefaultProfile(profile string, interactive bool) {
+func DefaultProfile(config ConfigOptions) {
+	viper.Set(Profile, config.Profile)
+	viper.Set(Interactive, config.Interactive)
+	viper.Set(QuietMode, config.QuietMode)
 }
 
 // DefaultConfigReady

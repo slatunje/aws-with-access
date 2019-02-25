@@ -7,10 +7,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/slatunje/aws-with-access/pkg/cue"
-	"github.com/slatunje/aws-with-access/pkg/utils"
 	"github.com/slatunje/aws-with-access/pkg/env"
+	"github.com/slatunje/aws-with-access/pkg/utils"
+	"github.com/spf13/cobra"
 )
 
 const (
@@ -20,6 +20,7 @@ const (
 var (
 	profile     string
 	interactive bool
+	quiet       bool
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -37,18 +38,22 @@ Description:
 
 // init is called in alphabetic order within this package
 func init() {
-	os.Setenv("TZ", "")
+	if err := os.Setenv("TZ", ""); err != nil {
+		log.Fatalln(err)
+	}
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().
-		StringVarP(&profile,"profile",  "p","default", "set profile name.")
+		StringVarP(&profile, "profile", "p", "default", "set profile name.")
 	rootCmd.PersistentFlags().
-		BoolVarP(&interactive,"interactive", "i", false, "enter into interactive mode.")
+		BoolVarP(&interactive, "interactive", "i", false, "enter into interactive mode.")
+	rootCmd.PersistentFlags().
+		BoolVarP(&quiet, "quiet", "q", false, "quiet mode: suppress normal output.")
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	env.DefaultEnv()
-	env.DefaultProfile(profile, interactive)
+	env.DefaultProfile(env.ConfigOptions{Profile: profile, Interactive: interactive, QuietMode: quiet})
 	env.DefaultConfigReady()
 }
 

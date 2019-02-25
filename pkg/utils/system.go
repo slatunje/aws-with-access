@@ -3,12 +3,13 @@
 package utils
 
 import (
-	"runtime"
-	"os"
-	"path/filepath"
-	"os/exec"
 	"errors"
 	"fmt"
+	"log"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
 )
 
 const (
@@ -50,12 +51,14 @@ func ProjectConfigDir(dir string) string {
 // ProjectConfigDir returns the path to project config directory
 func ProjectDefaultConfigDir(app string) (dir string) {
 	dir = filepath.Join(HomeDir(), app)
-	os.MkdirAll(dir, os.FileMode(ModeSecretConfig))
+	if err := os.MkdirAll(dir, os.FileMode(ModeSecretConfig)); err != nil {
+		log.Fatalln(err)
+	}
 	return
 }
 
 // GetPathToFilename returns the current executed path
-func GetPathToFilename() (string) {
+func GetPathToFilename() string {
 	_, filename, _, _ := runtime.Caller(1)
 	return filename
 }

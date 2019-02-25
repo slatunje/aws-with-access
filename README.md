@@ -42,6 +42,16 @@ Default `with` expects to find the default path `~/.aws/credentials`
     
     with aws s3 ls s3://vit-prod-lambda
     
+##  Escaping Flags
+
+To pass a flag directly to sub-commands `-` should be escaped as with a backslash `\-`  
+e.g `terraform plan -var-file=${VIT_TFVARS_FILE}` simply escape `-var-file` as `\-var-file`. 
+
+    with \
+    -p vit-dev \
+    terraform plan \
+    "\-var-file=${VIT_TFVARS_FILE}"
+    
 ##  Usage Session
 
 - [visit awssudo](https://github.com/JSainsburyPLC/awssudo#usage)

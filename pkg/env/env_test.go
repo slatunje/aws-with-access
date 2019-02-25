@@ -1,11 +1,13 @@
 package env
 
 import (
-	"testing"
-	"os"
-	"github.com/stretchr/testify/assert"
-	"github.com/spf13/viper"
 	"fmt"
+	"log"
+	"os"
+	"testing"
+
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
@@ -39,15 +41,33 @@ func TestOnInitiation(t *testing.T) {
 }
 
 func setupMain() {
-	os.Setenv("AWS_ACCESS_KEY_ID", "")
-	os.Setenv("AWS_SECRET_ACCESS_KEY", "")
-	os.Setenv("AWS_SESSION_TOKEN", "")
-	os.Setenv("AWS_DEFAULT_REGION", "")
-	os.Setenv("AWS_DEFAULT_OUTPUT", "")
-	os.Setenv("AWS_CA_BUNDLE", "")
-	os.Setenv("AWS_PROFILE", "")
-	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "")
-	os.Setenv("AWS_CONFIG_FILE", "")
+	if err := os.Setenv("AWS_ACCESS_KEY_ID", ""); err != nil {
+		log.Println(err)
+	}
+	if err := os.Setenv("AWS_SECRET_ACCESS_KEY", ""); err != nil {
+		log.Println(err)
+	}
+	if err := os.Setenv("AWS_SESSION_TOKEN", ""); err != nil {
+		log.Println(err)
+	}
+	if err := os.Setenv("AWS_DEFAULT_REGION", ""); err != nil {
+		log.Println(err)
+	}
+	if err := os.Setenv("AWS_DEFAULT_OUTPUT", ""); err != nil {
+		log.Println(err)
+	}
+	if err := os.Setenv("AWS_CA_BUNDLE", ""); err != nil {
+		log.Println(err)
+	}
+	if err := os.Setenv("AWS_PROFILE", ""); err != nil {
+		log.Println(err)
+	}
+	if err := os.Setenv("AWS_SHARED_CREDENTIALS_FILE", ""); err != nil {
+		log.Println(err)
+	}
+	if err := os.Setenv("AWS_CONFIG_FILE", ""); err != nil {
+		log.Println(err)
+	}
 }
 
 func initConfig() {
