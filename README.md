@@ -52,12 +52,14 @@ e.g `terraform plan -var-file=${VIT_TFVARS_FILE}` simply escape `-var-file` as `
     terraform plan \
     "\-var-file=${VIT_TFVARS_FILE}"
     
+    with --quiet --profile vit aws s3 ls "\--recursive" # note escaped flag
+    
 ##  Usage Session
 
 - [visit awssudo](https://github.com/JSainsburyPLC/awssudo#usage)
 
-    with \
-    --interactive \
+    with \ 
+    --interactive \ 
     --profile vit-prod 
    
     aws s3 ls
@@ -65,7 +67,7 @@ e.g `terraform plan -var-file=${VIT_TFVARS_FILE}` simply escape `-var-file` as `
     terraform
     
     with \ 
-    --interactive \
+    --interactive \ 
     --profile vit-dev \
     
     aws s3 ls

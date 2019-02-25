@@ -25,12 +25,15 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   app,
+	Use: fmt.Sprintf(app),
 	Short: fmt.Sprintf("=> %s makes it easy to obtain temporary AWS credentials", app),
 	Long: fmt.Sprintf(`
 Description:
   %s makes it easier to obtain temporary AWS credentials through 'AssumeRole'.
 `, app),
+	Example: fmt.Sprintf(`  %s --interactive --profile vit 
+  %s --quiet --profile vit aws s3 ls
+  %s --quiet --profile vit aws s3 ls "\--recursive"`, app, app, app),
 	Run: func(cmd *cobra.Command, args []string) {
 		cue.Credentials(args)
 	},
@@ -47,7 +50,7 @@ func init() {
 	rootCmd.PersistentFlags().
 		BoolVarP(&interactive, "interactive", "i", false, "enter into interactive mode.")
 	rootCmd.PersistentFlags().
-		BoolVarP(&quiet, "quiet", "q", false, "quiet mode: suppress normal output.")
+		BoolVarP(&quiet, "quiet", "q", false, "suppress normal output quiet mode.")
 }
 
 // initConfig reads in config file and ENV variables if set.
