@@ -5,8 +5,11 @@ deps:
 	touch .private/{env,config.ini}
 	direnv allow
 
-build:
+build: build.local
 	go build -o bin/with main.go
+
+build.local:
+	go build -o $$GOPATH/bin/with main.go
 
 term:
 	go build -i -o bin/sealterm cmd/interactive/main.go && ./bin/sealterm

@@ -9,16 +9,22 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
-	"github.com/slatunje/aws-with-access/pkg/utils"
-	"github.com/spf13/viper"
-	"github.com/slatunje/aws-with-access/pkg/env"
 	"github.com/aws/aws-sdk-go-v2/aws/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
+	"github.com/slatunje/aws-with-access/pkg/env"
 	"github.com/slatunje/aws-with-access/pkg/term"
+	"github.com/slatunje/aws-with-access/pkg/utils"
+	"github.com/spf13/viper"
+)
+
+const (
+	escapedFlag  = "\\-"
+	escapeSymbol = "\\"
 )
 
 // Credentials loads the required credentials
@@ -46,14 +52,26 @@ func Credentials(args []string) {
 func WriteEnvironment(cfg aws.Config) {
 	c, err := cfg.Credentials.Retrieve()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "[error] failed find credentials, %v", err)
+		if _, err = fmt.Fprintf(os.Stderr, "[error] failed find credentials, %v", err); err != nil {
+			log.Println(err)
+		}
 		os.Exit(utils.ExitCredentialsFailure)
 	}
-	os.Setenv("AWS_ACCESS_KEY_ID", c.AccessKeyID)
-	os.Setenv("AWS_SECRET_ACCESS_KEY", c.SecretAccessKey)
-	os.Setenv("AWS_SESSION_TOKEN", c.SessionToken)
-	os.Setenv("AWS_SECURITY_TOKEN", c.SessionToken)
-	os.Setenv("AWS_DEFAULT_PROFILE", viper.GetString(env.Profile))
+	if err := os.Setenv("AWS_ACCESS_KEY_ID", c.AccessKeyID); err != nil {
+		log.Fatalln(err)
+	}
+	if err := os.Setenv("AWS_SECRET_ACCESS_KEY", c.SecretAccessKey); err != nil {
+		log.Fatalln(err)
+	}
+	if err := os.Setenv("AWS_SESSION_TOKEN", c.SessionToken); err != nil {
+		log.Fatalln(err)
+	}
+	if err := os.Setenv("AWS_SECURITY_TOKEN", c.SessionToken); err != nil {
+		log.Fatalln(err)
+	}
+	if err := os.Setenv("AWS_DEFAULT_PROFILE", viper.GetString(env.Profile)); err != nil {
+		log.Fatalln(err)
+	}
 }
 
 // ExecuteCommand
@@ -62,13 +80,15 @@ func ExecuteCommand(args []string) {
 	if len(args) < 1 {
 		return
 	}
-	cmd = exec.Command(args[0], args[1:]...)
+	cmd = exec.Command(args[0], flags(args[1:])...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err) // output errors to stderr
+		if _, err = fmt.Fprintln(os.Stderr, err); err != nil { // output errors to stderr
+			log.Println(err)
+		}
 		os.Exit(utils.ExitCommandlineFailure)
 	}
 }
@@ -86,13 +106,17 @@ func cfgByProfile() (cfg aws.Config) {
 	}
 	cfg, err = external.LoadDefaultAWSConfig(share)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "[error] cannot load configuration due to, %v", err)
+		if _, err = fmt.Fprintf(os.Stderr, "[error] cannot load configuration due to, %v", err); err != nil {
+			log.Println(err)
+		}
 		os.Exit(utils.ExitCredentialsFailure)
 	}
 	if !reflect.DeepEqual(share.AssumeRole, external.AssumeRoleConfig{}) {
 		cfg.Credentials = credentials(cfg, share)
 	}
-	log.Printf("[info] using aws profile: '%v' ", share.Profile)
+	if !viper.GetBool(env.QuietMode) {
+		log.Printf("[info] using aws profile: '%v' ", share.Profile)
+	}
 	return
 }
 
@@ -112,4 +136,15 @@ func files() []string {
 // file sets the full path to a file
 func file(filename string) string {
 	return filepath.Join(utils.HomeDir(), ".aws", filename)
+}
+
+func flags(args []string) (data []string) {
+	data = make([]string, 0)
+	for _, a := range args {
+		if strings.HasPrefix(a, escapedFlag) {
+			a = strings.TrimPrefix(a, escapeSymbol)
+		}
+		data = append(data, a)
+	}
+	return
 }

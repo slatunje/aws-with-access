@@ -3,11 +3,11 @@
 package term
 
 import (
+	"fmt"
+	"github.com/fatih/color"
+	"github.com/slatunje/aws-with-access/pkg/utils"
 	"os"
 	"os/user"
-	"github.com/fatih/color"
-	"fmt"
-	"github.com/slatunje/aws-with-access/pkg/utils"
 )
 
 // Terminal declares the structure of a terminal
