@@ -34,6 +34,14 @@ Default `with` will always use the above environment values as default values.
 
 Default `with` expects to find the default path `~/.aws/credentials`
 
+##  Installation
+
+Either download the binary from bin/with or if you have a golang environment `go get github.com/slatunje/aws-with-access`  
+
+Move the file into local bin directory e.g `$HOME/Bin/with`
+
+Export the binary onto your path: `export PATH=$HOME/Bin:$PATH`
+
 ##  Usage Direct
 
     with aws s3 ls 
