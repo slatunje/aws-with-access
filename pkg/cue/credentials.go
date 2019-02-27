@@ -72,6 +72,9 @@ func WriteEnvironment(cfg aws.Config) {
 	if err := os.Setenv("AWS_DEFAULT_PROFILE", viper.GetString(env.Profile)); err != nil {
 		log.Fatalln(err)
 	}
+	if err := os.Setenv("AWS_CONFIG_FILE", file("config")); err != nil {
+		log.Fatalln(err)
+	}
 }
 
 // ExecuteCommand

@@ -12,4 +12,5 @@ const (
 	ExitShareConfigFailure
 	ExitBase64DecodeFailure
 	ExitOnDebug
+	ExitOnWithInSession
 )

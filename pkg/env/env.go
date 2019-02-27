@@ -27,6 +27,7 @@ const (
 	QuietMode               = "aws_shell_quiet"
 	PreviousAccessKeyID     = "aws_access_key_id_previous"
 	PreviousAccessSecretKey = "aws_secret_access_key_previous"
+	WithInSession    		= "aws_with_in_session"
 )
 
 // requiredKeys defines required keys
@@ -42,15 +43,6 @@ type ConfigOptions struct {
 // DefaultEnv
 func DefaultEnv() {
 	viper.AutomaticEnv()
-	//viper.SetDefault(AccessKeyID, "")
-	//viper.SetDefault(AccessSecretKey, "")
-	//viper.SetDefault(SessionToken, nil)
-	//viper.SetDefault(SessionDuration, 15*time.Minute)
-	//viper.SetDefault(Region, "eu-west-1")
-	//viper.SetDefault(Output, "json")
-	//viper.SetDefault(CaBundle, nil)
-	//viper.SetDefault(SharedCredentialsFile, "~/.aws/credentials")
-	//viper.SetDefault(ConfigFile, "~/.aws/config")
 	viper.SetDefault(RoleSession, "WITH.")
 }
 

@@ -41,9 +41,7 @@ Description:
 
 // init is called in alphabetic order within this package
 func init() {
-	if err := os.Setenv("TZ", ""); err != nil {
-		log.Fatalln(err)
-	}
+	setEmptyTimezone()
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().
 		StringVarP(&profile, "profile", "p", "default", "set profile name.")
@@ -51,6 +49,13 @@ func init() {
 		BoolVarP(&interactive, "interactive", "i", false, "enter into interactive mode.")
 	rootCmd.PersistentFlags().
 		BoolVarP(&quiet, "quiet", "q", false, "suppress normal output quiet mode.")
+}
+
+// setEmptyTimezone
+func setEmptyTimezone() {
+	if err := os.Setenv("TZ", ""); err != nil {
+		log.Fatalln(err)
+	}
 }
 
 // initConfig reads in config file and ENV variables if set.

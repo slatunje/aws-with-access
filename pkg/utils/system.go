@@ -32,7 +32,6 @@ func LoginPath() string {
 			link := "https://docs.microsoft.com/en-us/windows/wsl/install-win10#install-the-windows-subsystem-for-linux"
 			panic(errors.New(fmt.Sprintf("%s. visit %s to fix this problem ", err, link)))
 		}
-
 		return path // Windows
 	}
 	return "/usr/bin/login" // *nix
