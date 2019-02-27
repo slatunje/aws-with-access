@@ -96,7 +96,4 @@ e.g `terraform plan -var-file=${VIT_TFVARS_FILE}` simply escape `-var-file` as `
     
 ## TODO:
 
-- Figure out an easy way to set environment variables is child process straight after login
-
-
  
