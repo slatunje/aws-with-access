@@ -64,8 +64,6 @@ e.g `terraform plan -var-file=${VIT_TFVARS_FILE}` simply escape `-var-file` as `
     
 ##  Usage Session
 
-- [visit awssudo](https://github.com/JSainsburyPLC/awssudo#usage)
-
     with \ 
     --interactive \ 
     --profile vit-prod 
@@ -94,6 +92,5 @@ e.g `terraform plan -var-file=${VIT_TFVARS_FILE}` simply escape `-var-file` as `
     - AWS_ACCESS_KEY_ID
     - AWS_SECRET_ACCESS_KEY
     
-## TODO:
 
  
