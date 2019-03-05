@@ -25,10 +25,13 @@ import (
 const (
 	escapedFlag  = "\\-"
 	escapeSymbol = "\\"
+	timeFormat = "2006-01-02 15:04 MST"
 )
 
 // Credentials loads the required credentials
 func Credentials(args []string) {
+
+	AssertSession()
 
 	if !viper.GetBool(env.Interactive) {
 		WriteEnvironment(cfgByProfile())
@@ -75,6 +78,9 @@ func WriteEnvironment(cfg aws.Config) {
 	if err := os.Setenv("AWS_CONFIG_FILE", file("config")); err != nil {
 		log.Fatalln(err)
 	}
+	if err := os.Setenv("AWS_WITH_SESSION", time.Now().Format(timeFormat)); err != nil {
+		log.Fatalln(err)
+	}
 }
 
 // ExecuteCommand
@@ -94,6 +100,25 @@ func ExecuteCommand(args []string) {
 		}
 		os.Exit(utils.ExitCommandlineFailure)
 	}
+}
+
+// AssertSession return if application is in session or not
+func AssertSession() (s string) {
+	if s = os.Getenv("AWS_WITH_SESSION"); len(s) != 0 {
+		then, err := time.Parse(timeFormat, s)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		duration := time.Since(then)
+		fmt.Printf("with in session since: %f seconds", duration.Seconds())
+		if duration.Minutes() > 60 {
+			fmt.Printf("with session has expired: %f seconds", duration.Seconds())
+		}
+		os.Exit(utils.ExitOnWithInSession)
+		return
+	}
+	return
 }
 
 // cfgByProfile is responsible for returning the correct `aws.Config`

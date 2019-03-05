@@ -5,7 +5,9 @@ deps:
 	touch .private/{env,config.ini}
 	direnv allow
 
-build: build.local
+build: build.local build.project
+
+build.project:
 	go build -o bin/with main.go
 
 build.local:

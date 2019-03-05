@@ -72,6 +72,6 @@ func setupMain() {
 
 func initConfig() {
 	DefaultEnv()
-	DefaultProfile("PROFILE", false)
+	DefaultProfile(ConfigOptions{Profile: "PROFILE"})
 	DefaultConfigReady()
 }
