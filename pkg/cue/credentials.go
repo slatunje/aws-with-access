@@ -129,12 +129,12 @@ func cfgByProfile() (cfg aws.Config) {
 	var role = viper.GetString(env.Profile)
 	share, err := external.NewSharedConfig(role, files())
 	if err != nil {
-		log.Printf("[error] cannot load configuration due to, %v", err.Error())
+		log.Printf("[error] cannot load shared configuration due to, %v", err.Error())
 		os.Exit(utils.ExitShareConfigFailure)
 	}
 	cfg, err = external.LoadDefaultAWSConfig(share)
 	if err != nil {
-		if _, err = fmt.Fprintf(os.Stderr, "[error] cannot load configuration due to, %v", err); err != nil {
+		if _, err = fmt.Fprintf(os.Stderr, "[error] cannot load default configuration due to, %v", err); err != nil {
 			log.Println(err)
 		}
 		os.Exit(utils.ExitCredentialsFailure)
